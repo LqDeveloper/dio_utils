@@ -4,6 +4,7 @@ import 'http_status_code.dart';
 
 typedef RetryEvaluator = FutureOr<bool> Function(DioError error, int attempt);
 
+///重试拦截器
 class RetryInterceptor extends Interceptor {
   RetryInterceptor({
     required this.dio,
@@ -18,18 +19,24 @@ class RetryInterceptor extends Interceptor {
     this.ignoreRetryEvaluatorExceptions = false,
   }) : _retryEvaluator = retryEvaluator ?? defaultRetryEvaluator;
 
+  /// Dio 对象
   final Dio dio;
 
+  ///打印方法
   final Function(String message)? logPrint;
 
+  ///重新请求次数
   final int retries;
 
+  ///是否忽略异常
   final bool ignoreRetryEvaluatorExceptions;
 
+  ///重试时间间隔
   final List<Duration> retryDelays;
 
   final RetryEvaluator _retryEvaluator;
 
+  ///默认判断重试的条件
   static FutureOr<bool> defaultRetryEvaluator(DioError error, int attempt) {
     bool shouldRetry;
     if (error.type == DioErrorType.response) {
@@ -102,15 +109,20 @@ class RetryInterceptor extends Interceptor {
   }
 }
 
+///存储重试次数
 extension RequestOptionsX on RequestOptions {
   static const _kAttemptKey = 'ro_attempt';
   static const _kDisableRetryKey = 'ro_disable_retry';
 
+  ///获取重试次数
   int get _attempt => (extra[_kAttemptKey] as int?) ?? 0;
 
+  ///将重试次数保存在RequestOptions中
   set _attempt(int value) => extra[_kAttemptKey] = value;
 
+  ///是否禁用重试
   bool get disableRetry => (extra[_kDisableRetryKey] as bool?) ?? false;
 
+  ///设置是否禁用重试
   set disableRetry(bool value) => extra[_kDisableRetryKey] = value;
 }

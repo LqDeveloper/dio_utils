@@ -92,6 +92,7 @@ class HttpStatusCode {
   /// From AWS Elastic Load Balancer
   static const status460ClientClosedRequest = 460;
 
+  /// 默认重试的状态码
   static const retryableStatuses = <int>{
     status408RequestTimeout,
     status429TooManyRequests,
@@ -113,6 +114,7 @@ class HttpStatusCode {
     status527RailgunError,
   };
 
+  ///是否可以重试
   static bool isRetryable(int statusCode) =>
       retryableStatuses.contains(statusCode);
 }

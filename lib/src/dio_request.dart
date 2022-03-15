@@ -1,48 +1,28 @@
 import 'dart:io';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 import 'retry_interceptor.dart';
 
 class DioRequest with DioMixin {
-  static final DioRequest _instance = DioRequest._internal();
-
-  static DioRequest get instance => _instance;
-
+  ///缓存配置
   late CacheOptions cacheOptions;
+
+  ///Cookie 配置
   late CookieJar cookieJar;
 
-  DioRequest._internal() {
-    options = DefaultOption();
-    if (kDebugMode) {
-      interceptors.add(LogInterceptor(
-          responseBody: true,
-          error: true,
-          requestHeader: false,
-          responseHeader: false,
-          request: false,
-          requestBody: true));
-    }
-    cacheOptions = CacheOptions(
-      store: MemCacheStore(),
-      hitCacheOnErrorExcept: [401, 403],
-      maxStale: const Duration(days: 7),
-    );
-    interceptors.add(DioCacheInterceptor(options: cacheOptions));
-    cookieJar = PersistCookieJar(ignoreExpires: true);
-    interceptors.add(CookieManager(cookieJar));
-  }
-
   DioRequest(
-      {BaseOptions? op,
+      {String? baseUrl,
+      BaseOptions? op,
       LogInterceptor? log,
       CacheOptions? cache,
       CookieJar? cookie,
       RetryInterceptor? retry}) {
-    options = op ?? DefaultOption();
+    options = op ?? DefaultOption(baseUrl: baseUrl);
     if (kDebugMode) {
       final logInterceptor = log ??
           LogInterceptor(
@@ -120,9 +100,11 @@ class DioRequest with DioMixin {
   }
 }
 
+///默认的BaseOptions配置
 class DefaultOption extends BaseOptions {
-  DefaultOption()
+  DefaultOption({String? baseUrl})
       : super(
+          baseUrl: baseUrl ?? '',
           connectTimeout: 5000,
           sendTimeout: 5000,
           receiveTimeout: 5000,

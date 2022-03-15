@@ -1,6 +1,6 @@
 name: dio_utils
 description: dio tools, including cache management, cookie management, request retry.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/LqDeveloper/dio_utils
 
 environment:
@@ -8,11 +8,12 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
   dio: ^4.0.4
   dio_cache_interceptor: ^3.2.6
   dio_cookie_manager: ^2.0.0
-  flutter:
-    sdk: flutter
+  cookie_jar: ^3.0.1
 
 dev_dependencies:
   flutter_test:
