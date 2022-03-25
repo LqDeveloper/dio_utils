@@ -6,8 +6,6 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 
-import 'retry_interceptor.dart';
-
 class DioRequest with DioMixin {
   ///缓存配置
   late CacheOptions cacheOptions;
@@ -21,7 +19,7 @@ class DioRequest with DioMixin {
       LogInterceptor? log,
       CacheOptions? cache,
       CookieJar? cookie,
-      RetryInterceptor? retry}) {
+      List<Interceptor>? interceptorList}) {
     options = op ?? DefaultOption(baseUrl: baseUrl);
     if (kDebugMode) {
       final logInterceptor = log ??
@@ -43,6 +41,9 @@ class DioRequest with DioMixin {
     interceptors.add(DioCacheInterceptor(options: cacheOptions));
     cookieJar = cookie ?? PersistCookieJar(ignoreExpires: true);
     interceptors.add(CookieManager(cookieJar));
+    if (interceptorList != null && interceptorList.isNotEmpty) {
+      interceptors.addAll(interceptorList);
+    }
   }
 
   ///判断指定key的缓存是否存在
