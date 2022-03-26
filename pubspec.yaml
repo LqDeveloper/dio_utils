@@ -1,6 +1,6 @@
 name: dio_utils
 description: dio tools, including cache management, cookie management, request retry.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/LqDeveloper/dio_utils
 
 environment:

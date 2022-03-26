@@ -7,7 +7,11 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DioRequest with DioMixin {
+class DioRequest {
+  late Dio _dio;
+
+  Dio get dio => _dio;
+
   ///缓存配置
   late CacheOptions? cacheOptions;
 
@@ -23,23 +27,24 @@ class DioRequest with DioMixin {
       CacheOptions? cache,
       String? cookiePath,
       List<Interceptor>? interceptorList}) {
-    options = op ?? DefaultOption(baseUrl: baseUrl);
+    _dio = Dio();
+    _dio.options = op ?? DefaultOption(baseUrl: baseUrl);
     if (baseUrl != null && baseUrl.isNotEmpty) {
-      options.baseUrl = baseUrl;
+      _dio.options.baseUrl = baseUrl;
     }
     if (kDebugMode && log != null) {
-      interceptors.add(log);
+      _dio.interceptors.add(log);
     }
     if (cache != null) {
       cacheOptions = cache;
-      interceptors.add(DioCacheInterceptor(options: cache));
+      _dio.interceptors.add(DioCacheInterceptor(options: cache));
     }
     if (cookiePath != null && cookiePath.isNotEmpty) {
       cookieJar = PersistCookieJar(storage: FileStorage(cookiePath));
-      interceptors.add(CookieManager(cookieJar!));
+      _dio.interceptors.add(CookieManager(cookieJar!));
     }
     if (interceptorList != null && interceptorList.isNotEmpty) {
-      interceptors.addAll(interceptorList);
+      _dio.interceptors.addAll(interceptorList);
     }
   }
 
