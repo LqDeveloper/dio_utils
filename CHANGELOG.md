@@ -1,3 +1,3 @@
-## 0.0.5
+## 0.0.6
 
-dio tools, including cache management, cookie management, request retry.
+dio tools, including cache management, cookie management.

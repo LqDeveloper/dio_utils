@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioRequest {
   late Dio _dio;
@@ -23,12 +23,11 @@ class DioRequest {
   DioRequest(
       {String? baseUrl,
       BaseOptions? op,
-      LogInterceptor? log,
+      PrettyDioLogger? log,
       CacheOptions? cache,
       String? cookiePath,
       List<Interceptor>? interceptorList}) {
-    _dio = Dio();
-    _dio.options = op ?? DefaultOption(baseUrl: baseUrl);
+    _dio = Dio(op);
     if (baseUrl != null && baseUrl.isNotEmpty) {
       _dio.options.baseUrl = baseUrl;
     }
@@ -49,29 +48,34 @@ class DioRequest {
   }
 
   ///创建默认的DioRequest实例
-  static Future<DioRequest> getInstance(
+  factory DioRequest.defaultInstance(
       {String? baseUrl,
       BaseOptions? op,
-      List<Interceptor>? interceptorList}) async {
-    final logInterceptor = LogInterceptor(
+      String? cookiePath,
+      List<Interceptor>? interceptorList}) {
+    final options = op ??
+        BaseOptions(
+            baseUrl: baseUrl ?? '',
+            connectTimeout: 5000,
+            sendTimeout: 5000,
+            receiveTimeout: 5000,
+            contentType: Headers.jsonContentType,
+            responseType: ResponseType.json);
+
+    final logInterceptor = PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
         responseBody: true,
-        error: true,
-        requestHeader: false,
-        responseHeader: false,
-        request: false,
-        requestBody: true);
+        responseHeader: false);
 
     final cacheOptions = CacheOptions(
         store: MemCacheStore(),
-        hitCacheOnErrorExcept: [401, 403, 404],
+        hitCacheOnErrorExcept: [401, 403],
         maxStale: const Duration(days: 7));
-
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String cookiePath = appDocDir.path + "/.cookies/";
 
     return DioRequest(
         baseUrl: baseUrl,
-        op: op,
+        op: options,
         log: logInterceptor,
         cache: cacheOptions,
         cookiePath: cookiePath,
@@ -131,17 +135,4 @@ class DioRequest {
       [bool withDomainSharedCookie = false]) async {
     await cookieJar?.delete(uri, withDomainSharedCookie);
   }
-}
-
-///默认的BaseOptions配置
-class DefaultOption extends BaseOptions {
-  DefaultOption({String? baseUrl})
-      : super(
-          baseUrl: baseUrl ?? '',
-          connectTimeout: 5000,
-          sendTimeout: 5000,
-          receiveTimeout: 5000,
-          contentType: Headers.jsonContentType,
-          responseType: ResponseType.json,
-        );
 }

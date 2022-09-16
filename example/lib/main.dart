@@ -1,3 +1,4 @@
+import 'package:dio_utils/dio_utils.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,8 +20,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    final dioRequest = DioRequest.defaultInstance(baseUrl: '');
+    dioRequest.dio.get('api').then((value) {});
+  }
 
   @override
   Widget build(BuildContext context) {
